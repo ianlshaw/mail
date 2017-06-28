@@ -1,0 +1,220 @@
+source "~/.mutt/user"
+
+# nice manpage here
+# http://linux.die.net/man/5/muttrc
+# set useragent to somethign awesome like eck
+# first turn off user_agent
+# toggle flagged messages
+# https://github.com/neomutt/neomutt/issues/621
+bind index . noop
+# .i will show all new/flagged
+macro index .i  "<limit>(~N|~F)<Enter>"  "view new/flag"
+# .a will show all again
+macro index .a  "<limit>~A<Enter>"       "view all"
+set user_agent=no
+my_hdr User-Agent:Mutt/1.6.2-neo (NetBSD/sparc64)
+
+# show message count in sidebar
+# https://github.com/neomutt/neomutt/releases
+set sidebar_format = "%B%?F? [%F]?%* %?N?%N/?%S"
+set mail_check_stats = yes
+set sidebar_width = 20
+set sidebar_visible     = yes
+color sidebar_new yellow default
+
+# dont mark messages old
+set mark_old = no
+# these bind keys for the folder pane
+# ctrl-n, ctrl-p to select next, prev folder 
+# ctrl-o to open selected folder 
+### EDIT MARK ALL READ
+macro index .r "T.*\n;WN" "party time, excellent"
+bind index \CP sidebar-prev 
+bind index \CN sidebar-next 
+bind index \CO sidebar-open 
+bind pager \CP sidebar-prev 
+bind pager \CN sidebar-next 
+bind pager \CO sidebar-open 
+#set folder="~/Mail/mailboxes"
+##set edit_headers = yes
+bind index \t next-unread
+bind pager   \t          next-unread
+bind index  ,\t      previous-unread
+bind pager  ,\t      previous-unread
+
+# Make up and down arrows scroll indiviual lines while reading a message
+bind pager <up> previous-line #scroll inside the message rather than the index
+bind pager <down> next-line
+
+# LDAP search
+# http://www.perlmonks.org/?node_id=65152
+set query_command = "~/.mutt/mutt-ldap-lookup.pl '%s'"
+# sort by thread
+set sort = threads
+# b toggles sidebar visibility 
+#macro index b '<enter-command>toggle sidebar_visible<enter>' 
+#macro pager b '<enter-command>toggle sidebar_visible<enter>' 
+macro index b '<enter-command>toggle sidebar_visible<enter><refresh>' 
+macro pager b '<enter-command>toggle sidebar_visible<enter><redraw-screen>' 
+### save my sent messages
+#set record=imaps://wfoster@mail.example.com/Sent
+set record=~/Maildir/Sent
+#### useful settings from docs
+# activate TLS if available on the server
+#set signature = "~/.signature"
+set ssl_starttls=yes
+# always use SSL when connecting to a server
+set ssl_force_tls=yes
+# Don't wait to enter mailbox manually 
+unset imap_passive        
+#       # Automatically poll subscribed mailboxes for new mail (new in 1.5.11)
+set imap_check_subscribed
+# Reduce polling frequency to a sane level
+## trobert banhammer
+##set mail_check=60
+set mail_check=300
+# And poll the current mailbox more often (not needed with IDLE in post 1.5.11)
+set timeout=10
+# keep a cache of headers for faster loading (1.5.9+?)
+#set header_cache=~/.mutt/hcache
+#set header_cache=~/Localmail/hcache
+set header_cache=~/Localmail/hcache
+# Display download progress every 5K
+set net_inc=5
+# force envelope and sender
+set use_from
+set envelope_from
+set from="ian.shaw@.ecs.co.uk"
+set spoolfile=~/Maildir/INBOX
+# NEEDED for maildir format
+set mbox_type=Maildir
+set folder=~/Maildir/
+
+######### BEGIN IMAP FOLDERS
+mailboxes =INBOX \
+=Sent \
+=Drafts \
+=Junk \
+=Trash \
+=browbeat-review \
+=community-cage \
+=ENG \
+=ENG.bugzilla \
+=ENG.conf-talks \
+=ENG.os-list-dev \
+=github
+######### END IMAP FOLDERS
+
+##### UPDATED NOTMUCH SETTINGS #######
+
+    macro index <F8> \
+          "<enter-command>unset wait_key<enter><shell-escape>~/.mutt/mutt-notmuch.pl --prompt search<enter><change-folder-readonly>~/.cache/mutt_results<enter>" \
+          "notmuch: search mail"
+    macro index <F9> \
+          "<enter-command>unset wait_key<enter><pipe-message>~/.mutt/mutt-notmuch.pl thread<enter><change-folder-readonly>~/.cache/mutt_results<enter><enter-command>set wait_key<enter>" \
+          "notmuch: reconstruct thread"
+    macro index <F6> \
+          "<enter-command>unset wait_key<enter><pipe-message>~/.mutt/mutt-notmuch.pl tag -inbox<enter>" \
+          "notmuch: remove message from inbox"
+
+set move=no
+set certificate_file=/home/wfoster/.mutt-certificates
+ignore *
+unignore From To Cc Subject Date Reply-To Organization X-Mailer User-Agent
+
+# Order to display the headers in
+hdr_order From: Date: To: Cc: Subject:
+
+set edit_headers
+
+# Use vim as the editor - this line will wrap
+# Set wordwrap on in vim to automatically wrap lines -
+# no :gq all the time
+set editor="vim +':set textwidth=70' +':set wrap' +\`awk '/^$/ {print i+2; exit} {i++}' %s\` %s"
+
+# set format=flowed
+set text_flowed
+
+# dont mark messages old
+set nomark_old
+
+# Automatically quote message
+set include=yes
+
+# Set quotemark to 1 byte
+set indent_str="> "
+
+set index_format   = "%4C %Z %{%b %d} %-15.15F (%4l) %s"
+set forward_format="Fw: %s"     # subject in forwarded messages
+set date_format="%d/%m/%y %H:%M %Z"
+set quote_regexp="^([A-Za-z ]+>|[]%>:|}-][]>:|}-]*)"
+
+# SMTP config
+set realname = $my_realname
+set from = "$my_username@$my_domain"
+set smtp_pass = $my_password
+set hostname = $my_domain
+set smtp_url = "smtp://$my_username@$my_domain@outlook.office365.com:587/"
+set ssl_force_tls = yes
+set smtp_authenticators = "login"
+
+# Sendmail path
+set sendmail="/usr/sbin/sendmail"
+
+# Mailcap path
+set mailcap_path 	= ~/.mutt/mailcap
+
+
+set mime_forward="yes"
+set mime_forward_rest="yes"
+color quoted0   blue        default
+color quoted1   green       default
+color quoted2   red         default
+color quoted3   blue        default
+color quoted4   green       default
+color quoted5   red         default
+color quoted6   blue        default
+color signature green       default
+color tilde     cyan  default
+### edit try new colors
+color   tree        magenta             default
+
+# new set sidebar delim
+set sidebar_divider_char=' | '
+
+### make new messages yellow
+color index brightyellow default ~N # New#
+#color header white          black   .               # Headers are this color,
+#color header white    black   ^Subject        # except for `Subject:'.
+### latest edit
+color header white        default .               # Headers are this color,
+color header red    white ^Subject        # except for `Subject:'.
+color header black          red     ^(X-Spam-Status:\ Yes|X-Virus-Report:)
+color header black          red     ^Newsgroups:.*, # cross-posted
+color header black          green   ^Followup-To:   # followup header
+color status    brightblue default
+color indicator default red 
+color markers   cyan  black
+
+# Collapose all threads by default
+folder-hook . "push <collapse-all>\n"
+
+# Colorise threads
+color index magenta  default "~v~(!~N)~(!~F)" # collapsed thread with no New or Flagged
+color index red     default "~v~(~F)~(!~N)"  # collapsed thread with Flagged but no New
+color index green   default "~v~(~N)"        # collapsed thread with New
+
+# prefer plain text
+alternative_order text/plain text/enriched text/html
+
+# auto convert text/html to text/plain
+auto_view text/html
+
+# run viewer defined in mailcap by <return> in attach view
+bind attach <return> view-mailcap
+
+## GPG encrypt to self option
+# http://www.neomutt.org/feature/smime-encrypt-self/
+#set smime_encrypt_self = yes
+#set smime_default_key  = 07BC7E81
+#source ~/.muttrc-gpg

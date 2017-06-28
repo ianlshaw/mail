@@ -1,0 +1,24 @@
+[general]
+accounts = SomeAcc
+
+[Account SomeAccountName]
+localrepository = SomeAccountNameLocal
+remoterepository = SomeAccountNameRemote
+postsynchook = notmuch new
+
+[Repository SomeAccountNameRemote]
+type = IMAP
+remotehost = IMAP_HOST
+# For office 365 use this:
+remotehost = outlook.office365.com
+remoteuser = FULL_EMAIL_ADDRESS
+# probably a bad idea
+remotepass = ENTER_PASSWORD_HERE
+# This one is platform specific, this example is Mac OS 
+sslcacertfile = /usr/local/etc/openssl/cert.pem
+ssl = yes
+
+[Repository SomeAccountNameLocal]
+type = Maildir
+localfolders = ~/Maildir
+restoreatime = no
